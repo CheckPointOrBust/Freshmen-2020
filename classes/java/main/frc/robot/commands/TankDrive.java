@@ -5,97 +5,79 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.subsystems;
+package frc.robot.commands;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-
-import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 import frc.robot.RobotMap;
 
-/**
- * Add your docs here.
- */
-public class DriveTrain extends Subsystem {
-  // Put methods for controlling this subsystem
-  // here. Call these from Commands.
+public class TankDrive extends Command {
+  public TankDrive() {
+    // Use requires() here to declare subsystem dependencies
+    requires(Robot.driveTrain);
+  }
 
-
-  // Declartion of driver motors (hi)
-  private TalonSRX frontRightMotor = new TalonSRX(RobotMap.FRONT_RIGHT_MOTOR);
-  private TalonSRX backRightMotor = new TalonSRX(RobotMap.BACK_RIGHT_MOTOR);
-  private TalonSRX frontLeftMotor = new TalonSRX(RobotMap.FRONT_LEFT_MOTOR);
-  private TalonSRX backLeftMotor = new TalonSRX(RobotMap.BACK_LEFT_MOTOR);
-  // public SpeedController frontRightMotor = new PWMTalonSRX(RobotMap.FRONT_RIGHT_MOTOR);
-  // public SpeedController backRightMotor = new PWMTalonSRX(RobotMap.BACK_RIGHT_MOTOR);
-  // public SpeedController frontLeftMotor = new PWMTalonSRX(RobotMap.FRONT_LEFT_MOTOR);
-  // public SpeedController backLeftMotor = new PWMTalonSRX(RobotMap.BACK_LEFT_MOTOR);
-
-
+  // Called just before this Command runs the first time
   @Override
-  public void initDefaultCommand() {
-    // Set the default command for a subsystem here.
-    // // setDefaultCommand(new MySpecialCommand());
-    // backRightMotor.follow(backLeftMotor);
-    // frontRightMotor.follow(frontLeftMotor);
-
-    // backRightMotor.follow(frontRightMotor);
-    // backLeftMotor.follow(frontLeftMotor);
-
-    backLeftMotor.setInverted(true);
-    frontLeftMotor.setInverted(true);
+  protected void initialize() {
+    Robot.driveTrain.setLeftMotorSpeed(0, 0);
+    Robot.driveTrain.setRightMotorSpeed(0, 0);
   }
 
-  public void setRightMotorSpeed(double speedY, double speedX) {
-    if (getDeadzone(speedY)) {
-      speedY = 0;
+  // Called repeatedly when this Command is scheduled to run
+  @Override
+  protected void execute() {
+    double driverAxis = Robot.oi.getDriverAxis(RobotMap.ROBOT_DRIVE_YAXIS);
+    double driverAxis2 = Robot.oi.getDriverAxis(RobotMap.ROBOT_DRIVE_XAXIS);
+
+    double varSpeed = 0.50;
+
+    if (Math.abs(driverAxis2) > RobotMap.DEADZONE || Math.abs(driverAxis) > RobotMap.DEADZONE) {
+      if (driverAxis2 > varSpeed) {
+        driverAxis2 = varSpeed;
+        Robot.driveTrain.setLeftMotorSpeed(0, -driverAxis2);
+        System.out.println("turning right");
+      } else if (driverAxis2 < -varSpeed) {
+        driverAxis2 = -varSpeed;
+        Robot.driveTrain.setRightMotorSpeed(0, driverAxis2);
+        System.out.println("turning left");
+      }
+      if (driverAxis > varSpeed) {
+        driverAxis = varSpeed;
+        Robot.driveTrain.setLeftMotorSpeed(driverAxis, 0);
+        Robot.driveTrain.setRightMotorSpeed(driverAxis, 0);
+        System.out.println("Driving backward");
+      } else if (driverAxis < -varSpeed) {
+        driverAxis = -varSpeed;
+        Robot.driveTrain.setLeftMotorSpeed(driverAxis, 0);
+        Robot.driveTrain.setRightMotorSpeed(driverAxis, 0);
+        System.out.println("Driving forward");
+      }
+    } else {
+      Robot.driveTrain.setLeftMotorSpeed(0, 0);
+      Robot.driveTrain.setRightMotorSpeed(0, 0);
     }
-    if (getDeadzone(speedX)) {
-      speedX = 0;
-    } 
-    
-      frontRightMotor.set(ControlMode.PercentOutput, speedY + speedX);
-      backRightMotor.set(ControlMode.PercentOutput, speedY + speedX);
+    // Robot.driveTrain.setLeftMotorSpeed(driverAxis, driverAxis2);
+    // Robot.driveTrain.setRightMotorSpeed(driverAxis, driverAxis2);
+
   }
 
-  public void setLeftMotorSpeed(double speedY, double speedX) {
-    if (getDeadzone(speedY)) {
-      speedY = 0;
-    }
-    if (getDeadzone(speedX)) {
-      speedX = 0;
-    }
-    frontLeftMotor.set(ControlMode.PercentOutput, speedY + speedX);
-    backLeftMotor.set(ControlMode.PercentOutput, speedY + speedX);
+  // Make this return true when this Command no longer needs to run execute()
+  @Override
+  protected boolean isFinished() {
+    return false;
   }
 
-  public void FLMset(double speed) {
-    if (getDeadzone(speed)) speed = 0;
-
-    frontLeftMotor.set(ControlMode.PercentOutput, speed);
+  // Called once after isFinished returns true
+  @Override
+  protected void end() {
+    initialize();
   }
 
-  public void FRMset(double speed) {
-    if (getDeadzone(speed)) speed = 0;
-
-    frontRightMotor.set(ControlMode.PercentOutput, speed);
+  // Called when another command which requires one or more of the same
+  // subsystems is scheduled to run
+  @Override
+  protected void interrupted() {
+    end();
   }
-
-  public void BLMset(double speed) {
-    if (getDeadzone(speed)) speed = 0;
-  
-    backLeftMotor.set(ControlMode.PercentOutput, speed);
-  }
-
-  public void BRMset(double speed) {
-    if (getDeadzone(speed)) speed = 0;
-
-    backRightMotor.set(ControlMode.PercentOutput, speed);
-  }
-
-  public boolean getDeadzone(double speed) {
-    return Math.abs(speed) < RobotMap.DEADZONE;
-  }
-  
 }
