@@ -43,22 +43,14 @@ public class driveMecanum extends Command {
       Robot.driveTrain.setLeftMotorSpeed(value, 0);
       Robot.driveTrain.setRightMotorSpeed(value * -1, 0);
     }
-    // upper right
-    if (driverAxisL > RobotMap.DEADZONE && driverAxisR > RobotMap.DEADZONE) {
+    if ((driverAxisL > RobotMap.DEADZONE && driverAxisR > RobotMap.DEADZONE) || (driverAxisL > (RobotMap.DEADZONE *-1)  && driverAxisR > RobotMap.DEADZONE)) {
+			// upper and lower right
       Robot.driveTrain.FLMset(driverAxisR);
       Robot.driveTrain.BRMset(driverAxisR); 
-    } else if (driverAxisL > RobotMap.DEADZONE && driverAxisR < (RobotMap.DEADZONE * -1)) {
-    // upper left
+    } else if ((driverAxisL > RobotMap.DEADZONE && driverAxisR < (RobotMap.DEADZONE * -1)) || (driverAxisL > (RobotMap.DEADZONE * -1) && driverAxisR < (RobotMap.DEADZONE * -1))) {
+    // upper and lower left
       Robot.driveTrain.BLMset(driverAxisR);
       Robot.driveTrain.FRMset(driverAxisR);
-    } else if (driverAxisL > (RobotMap.DEADZONE * -1) && driverAxisR < (RobotMap.DEADZONE * -1)) {
-      // lower left
-        Robot.driveTrain.BLMset(driverAxisR);
-        Robot.driveTrain.FRMset(driverAxisR); 
-    } else if (driverAxisL > (RobotMap.DEADZONE *-1)  && driverAxisR > RobotMap.DEADZONE) {
-      // low right
-        Robot.driveTrain.FLMset(driverAxisR);
-        Robot.driveTrain.BRMset(driverAxisR); 
     } else if (driverAxisR > RobotMap.DEADZONE) {
       // drive right
       Robot.driveTrain.FLMset(driverAxisR);
